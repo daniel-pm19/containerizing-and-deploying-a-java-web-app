@@ -13,7 +13,7 @@ services:
       - db
 
   db:
-    image: mongo:8
+    image: mongo:7
     container_name: virtualization-db
     volumes:
       - mongodb:/data/db
