@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: edu.co.escuelaing.containerizing_and_deploying_a_java_web_app.ContainerizingAndDeployingAJavaWebAppApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.003 s -- in edu.co.escuelaing.containerizing_and_deploying_a_java_web_app.ContainerizingAndDeployingAJavaWebAppApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.655 s -- in edu.co.escuelaing.containerizing_and_deploying_a_java_web_app.ContainerizingAndDeployingAJavaWebAppApplicationTests
