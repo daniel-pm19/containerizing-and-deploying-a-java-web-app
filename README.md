@@ -58,8 +58,8 @@ java -jar target/*.jar
 
 | Test | Screenshot |
 |---|---|
-| `GET /greeting` (default value) | ![Hello World](docs/image.png) |
-| `GET /greeting?name=Pedro` | ![Hello Pedro](docs/image%20copy.png) |
+| `GET /greeting` (default value) | ![Hello World](docs/part1-hello-world.png) |
+| `GET /greeting?name=Pedro` | ![Hello Pedro](docs/part1-hello-pedro.png) |
 
 ## Part 2 — Docker image and isolated containers
 
@@ -109,14 +109,14 @@ Each container runs in isolation, with its own process and internal port space, 
 
 | Step | Screenshot |
 |---|---|
-| `docker build` | ![docker build](docs/image%20copy%202.png) |
-| `docker images` | ![docker images](docs/image%20copy%203.png) |
-| `docker run` container 1 | ![docker run 1](docs/image%20copy%204.png) |
-| `docker ps` | ![docker ps](docs/image%20copy%205.png) |
-| Container 1 responding | ![Container 1](docs/image%20copy%206.png) |
-| `docker run` containers 2 and 3 | ![docker run 2 and 3](docs/image%20copy%207.png) |
-| Container 2 responding | ![Container 2](docs/image%20copy%208.png) |
-| Container 3 responding | ![Container 3](docs/image%20copy%209.png) |
+| `docker build` | ![docker build](docs/part2-docker-build.png) |
+| `docker images` | ![docker images](docs/part2-docker-images.png) |
+| `docker run` container 1 | ![docker run 1](docs/part2-docker-run-container1.png) |
+| `docker ps` | ![docker ps](docs/part2-docker-ps.png) |
+| Container 1 responding | ![Container 1](docs/part2-container1-response.png) |
+| `docker run` containers 2 and 3 | ![docker run 2 and 3](docs/part2-docker-run-containers-2-3.png) |
+| Container 2 responding | ![Container 2](docs/part2-container2-response.png) |
+| Container 3 responding | ![Container 3](docs/part2-container3-response.png) |
 
 ### Issue found and fixed: port mapping
 
@@ -156,14 +156,14 @@ docker compose logs db
 
 | Step | Screenshot |
 |---|---|
-| `docker compose up -d --build` | ![compose up](docs/image%20copy%2010.png) |
-| `docker compose logs web` | ![compose logs web](docs/image%20copy%2012.png) |
-| `web` service responding on `:8087` | ![Hello Compose](docs/image%20copy%2014.png) |
-| `docker compose ps` (web + db up) | ![compose ps](docs/image%20copy%2015.png) |
-| `docker compose logs db` | ![compose logs db](docs/image%20copy%2016.png) |
-| `docker compose exec db mongosh` | ![mongosh](docs/image%20copy%2017.png) |
-| `insertOne` / `find()` on `workshop.messages` | ![insert and find](docs/image%20copy%2018.png) |
-| `docker compose down` / `docker compose down -v` | ![compose down](docs/image%20copy%2019.png) |
+| `docker compose up -d --build` | ![compose up](docs/part3-compose-up.png) |
+| `docker compose logs web` | ![compose logs web](docs/part3-compose-logs-web.png) |
+| `web` service responding on `:8087` | ![Hello Compose](docs/part3-hello-compose.png) |
+| `docker compose ps` (web + db up) | ![compose ps](docs/part3-compose-ps.png) |
+| `docker compose logs db` | ![compose logs db](docs/part3-compose-logs-db.png) |
+| `docker compose exec db mongosh` | ![mongosh](docs/part3-mongosh-connect.png) |
+| `insertOne` / `find()` on `workshop.messages` | ![insert and find](docs/part3-mongosh-insert-find.png) |
+| `docker compose down` / `docker compose down -v` | ![compose down](docs/part3-compose-down.png) |
 
 ### Issue found and fixed: `mongo:8` incompatibility with the kernel
 
@@ -196,9 +196,9 @@ docker push danielpm1912/virtualization-lab:latest
 
 | Step | Screenshot |
 |---|---|
-| `docker login` | ![docker login](docs/image%20copy%2020.png) |
-| `docker push` (tags `1.0` and `latest`) | ![docker push](docs/image%20copy%2021.png) |
-| Public repository on Docker Hub | ![Docker Hub repo](docs/image%20copy%2022.png) |
+| `docker login` | ![docker login](docs/part4-docker-login.png) |
+| `docker push` (tags `1.0` and `latest`) | ![docker push](docs/part4-docker-push.png) |
+| Public repository on Docker Hub | ![Docker Hub repo](docs/part4-dockerhub-repo.png) |
 
 ## Part 5 — Deployment on AWS EC2
 
@@ -206,21 +206,33 @@ docker push danielpm1912/virtualization-lab:latest
 
 ### Security Group
 
-Initial configuration, during testing:
+The Security Group went through three stages during the workshop:
+
+**1. Initial configuration, during testing (no surviving screenshot — overwritten by later captures):** besides the application port, ports 8000 and 9000 were also left open, all to `0.0.0.0/0` (any source), even though the container only ever used one port at a time.
+
+**Lesson learned:** a Security Group should be restricted to only the port actually exposed by the application and to the source that genuinely needs access, closing any port that is no longer in use.
+
+**2. First correction — both rules restricted to the author's own IP:**
 
 | Rule | Port | Source |
 |---|---|---|
-| SSH | 22 | Own public IP only (`/32`) |
+| SSH | 22 | `186.29.182.185/32` |
+| App | 8080 | `186.29.182.185/32` |
+
+![First Security Group correction](docs/part5-security-group-first-fix.png)
+
+This closed the extra ports, but restricting 8080 to a single IP also meant nobody else (e.g. a grader) could reach the public URL — too strict for a deployment that needs to be publicly verifiable.
+
+**3. Final configuration — SSH locked down, application port public:**
+
+| Rule | Port | Source |
+|---|---|---|
+| SSH | 22 | `186.29.182.185/32` |
 | App | 8080 | `0.0.0.0/0` |
-| ~~App (testing)~~ | ~~8000, 9000~~ | ~~`0.0.0.0/0`~~ |
 
-![Initial Security Group](docs/image%20copy%2011.png)
+![Final Security Group](docs/part5-security-group-final.png)
 
-**Lesson learned:** during testing, ports 8000 and 9000 were also left open, and 8080 was open to `0.0.0.0/0` (any source), even though the final container only uses 8080 and only needed to be tested from the author's own machine. In a real deployment, the Security Group should be restricted to only the port actually exposed by the application and to the source that genuinely needs access, closing any port that is no longer in use.
-
-**Fix applied:** the Security Group was reconfigured to only 2 inbound rules, both restricted to the author's own public IP (`186.29.182.185/32`): SSH (22) and the application (8080). There is no longer any rule open to `0.0.0.0/0`.
-
-![Fixed Security Group](docs/image%20copy%2037.png)
+This is the configuration kept for the deployment: administrative access (SSH) stays restricted to the author's IP, while the application port is open to the world since the whole point of a public deployment is that it be reachable.
 
 ### Connecting and installing Docker
 
@@ -236,9 +248,9 @@ sudo usermod -a -G docker ec2-user
 
 | Step | Screenshot |
 |---|---|
-| SSH connection | ![SSH](docs/image%20copy%2013.png) |
-| `yum update` / `yum install docker` | ![yum install docker](docs/image%20copy%2023.png) |
-| `service docker start` / `usermod` | ![docker start](docs/image%20copy%2024.png) |
+| SSH connection | ![SSH](docs/part5-ssh-connect.png) |
+| `yum update` / `yum install docker` | ![yum install docker](docs/part5-yum-install-docker.png) |
+| `service docker start` / `usermod` | ![docker start](docs/part5-docker-start-usermod.png) |
 
 ### Running the container
 
@@ -255,14 +267,14 @@ docker run -d \
 
 | Step | Screenshot |
 |---|---|
-| `docker run` | ![docker run EC2](docs/image%20copy%2025.png) |
-| `docker ps` + `docker logs` | ![docker ps and logs](docs/image%20copy%2026.png) |
+| `docker run` | ![docker run EC2](docs/part5-docker-run-ec2.png) |
+| `docker ps` + `docker logs` | ![docker ps and logs](docs/part5-docker-ps-logs-ec2.png) |
 
 ### Verification
 
 **Public URL (historical evidence):** `http://18.214.26.140:8080/greeting?name=AWS`
 
-![Hello AWS](docs/image%20copy%2027.png)
+![Hello AWS](docs/part5-hello-aws-browser.png)
 
 > The instance was terminated after capturing this evidence to avoid unnecessary charges, as recommended by the workshop. The URL is no longer active; the screenshot is the evidence of the working deployment.
 
@@ -292,7 +304,14 @@ Container: Java web application (Spring Boot, internal port 9000)
 
 ### Workload assumptions
 
-> The three scenarios were calculated by editing a single AWS Pricing Calculator estimate (same EC2 instance), varying only the outbound data transfer between runs. The base configuration (instance, OS, EBS, monitoring) was verified by exporting the estimate's JSON:
+> The three scenarios were calculated by editing a single AWS Pricing Calculator estimate (same EC2 instance), varying only the outbound data transfer between runs. The base configuration (instance, OS, EBS, monitoring) was verified both by exporting the estimate's JSON and with direct screenshots of the calculator's configuration panel:
+
+| Configuration panel | Screenshot |
+|---|---|
+| Region, tenancy, OS, workload type, instance count | ![EC2 estimate configuration](docs/part6-calculator-ec2-config.png) |
+| Instance selection (`t3.micro`, 2 vCPU, 1 GiB) | ![Instance selection](docs/part6-calculator-instance-selection.png) |
+| Payment options (On-Demand, 100% utilization) | ![Payment options](docs/part6-calculator-payment-options.png) |
+| Detailed monitoring enabled | ![Monitoring enabled](docs/part6-calculator-monitoring-enabled.png) |
 
 | Assumption | Small | Medium | Large |
 |---|---|---|---|
@@ -322,10 +341,10 @@ Container: Java web application (Spring Boot, internal port 9000)
 
 | Scenario | AWS Pricing Calculator screenshot |
 |---|---|
-| Small | ![Pricing Calculator Small](docs/image%20copy%2031.png) |
-| Medium | ![Pricing Calculator Medium](docs/image%20copy%2030.png) |
-| Large | ![Pricing Calculator Large](docs/image%20copy%2029.png) |
-| Summary table | ![Cost table](docs/image%20copy%2028.png) |
+| Small | ![Pricing Calculator Small](docs/part6-pricing-calculator-small.png) |
+| Medium | ![Pricing Calculator Medium](docs/part6-pricing-calculator-medium.png) |
+| Large | ![Pricing Calculator Large](docs/part6-pricing-calculator-large.png) |
+| Summary table | ![Cost table](docs/part6-cost-table.png) |
 
 ### Architectural discussion
 
