@@ -206,33 +206,14 @@ docker push danielpm1912/virtualization-lab:latest
 
 ### Security Group
 
-The Security Group went through three stages during the workshop:
-
-**1. Initial configuration, during testing (no surviving screenshot — overwritten by later captures):** besides the application port, ports 8000 and 9000 were also left open, all to `0.0.0.0/0` (any source), even though the container only ever used one port at a time.
-
-**Lesson learned:** a Security Group should be restricted to only the port actually exposed by the application and to the source that genuinely needs access, closing any port that is no longer in use.
-
-**2. First correction — both rules restricted to the author's own IP:**
-
-| Rule | Port | Source |
-|---|---|---|
-| SSH | 22 | `186.29.182.185/32` |
-| App | 8080 | `186.29.182.185/32` |
-
-![First Security Group correction](docs/part5-security-group-first-fix.png)
-
-This closed the extra ports, but restricting 8080 to a single IP also meant nobody else (e.g. a grader) could reach the public URL — too strict for a deployment that needs to be publicly verifiable.
-
-**3. Final configuration — SSH locked down, application port public:**
-
 | Rule | Port | Source |
 |---|---|---|
 | SSH | 22 | `186.29.182.185/32` |
 | App | 8080 | `0.0.0.0/0` |
 
-![Final Security Group](docs/part5-security-group-final.png)
+![Security Group](docs/part5-security-group-final.png)
 
-This is the configuration kept for the deployment: administrative access (SSH) stays restricted to the author's IP, while the application port is open to the world since the whole point of a public deployment is that it be reachable.
+Administrative access (SSH) is restricted to the author's own IP, while the application port is open to the world since the whole point of a public deployment is that it be reachable.
 
 ### Connecting and installing Docker
 
